@@ -1,4 +1,4 @@
-# MySQL Server Docker
+# MySQL Server via Docker
 
 ## Table of Contents
 
