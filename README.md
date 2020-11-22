@@ -11,6 +11,7 @@
 - [Set User Permissions](#user-permissions)
 - [Database Security](#security)
 - [Connect MySQL Workbench](#workbench)
+- [Persistent Data](#persistent)
 
 <a name="overview" />
 
@@ -168,3 +169,21 @@ Now, `3306` is the default listening port for MySQL Server and I made the ports 
 However, lets say that `3306` on my machine was already occupied by something. I could have changed the host port to anything and still connect to my database.
 
 E.G. If I had set the port definition in docker-compose.yml to `8080:3306` then I could still connect to my database by accessing `localhost:8080` and it would still be mapped to `container:3306`.
+
+<a name="persistent"></a>
+
+## Persistent Data
+
+Now, a typical problem with containerizing applications is the non-persistent storage. This means that when the contain stops, the data is gone. Now, for a database, that is un-acceptable! We need our data to be retained regardless how many times we stop and start our container. How do we fix that?
+
+The answer is a persistent volume.
+
+In essence, we need to map the directory(ies) in our container that hold our data to a location on our host machine.
+
+In our docker-compose.yml (line #25), you can see how we mapped or persisent volume. This reads the same as our port mapping.
+
+> Map all the information to the `./db/data` directory on our host machine from the `/var/lib/mysql` directory in the container.
+
+In MySQL Server, the `/var/lib/mysql` directory holds all of the data from the server.
+
+This means that as long as we retain the `./db/data` directory, we can stop, start, and delete our container without fear of losing any information.
