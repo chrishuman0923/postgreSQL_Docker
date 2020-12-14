@@ -138,9 +138,9 @@ After running the above command, you should be able to connect to the server and
 
 Each user should be granted minimum permissions to minimum databases.
 
-Ideally, you would implement user roles and, instead of granting permissions directly to a user, you would add users to a user role that contains the minimum permissions they require and audit the members of each role often.
+Ideally, you would implement user roles and, instead of granting permissions directly to a user, you would add users to a user role that contains the minimum permissions they require to complete their tasks and then audit the members of each role often.
 
-Also, you would limit the IP addresses from which a user can connect from to a list of approved IP's.
+Also, you would limit the IP addresses from which a user can use to connect to your server/databases.
 
 This is by no means the only preventative measures you can take but it is at least a step in the right direction. You should always secure your data servers thoroughly and scrutinize access.
 
@@ -180,7 +180,7 @@ The answer is a persistent volume.
 
 In essence, we need to map the directory(ies) in our container that hold our data to a location on our host machine.
 
-In our docker-compose.yml (line #25), you can see how we mapped or persisent volume. This reads the same as our port mapping.
+In our docker-compose.yml (line #25), you can see how we mapped our persisent volume. This reads the same as our port mapping.
 
 > Map all the information to the `./db/data` directory on our host machine from the `/var/lib/mysql` directory in the container.
 
