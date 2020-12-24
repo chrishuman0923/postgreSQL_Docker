@@ -2,6 +2,9 @@ version: '3.8'
 
 services:
   db:
+    # Resolves the "mbind: Operation not permitted" warning in container logs
+    # https://github.com/docker-library/mysql/issues/303
+    cap_add: [ SYS_NICE ]
     # Defines a name for your container rather than having docker create a random one for you
     container_name: mysql_local
     # Defines environment values to pass into the container.
