@@ -1,4 +1,4 @@
-# MySQL Server via Docker
+# Postgres via Docker
 
 ## Table of Contents
 
@@ -7,25 +7,23 @@
 - [Installation](#install)
 - [Start the Container](#start)
 - [Login to the Container](#login-container)
-- [Login to MySQL Server](#login-server)
-- [Set User Permissions](#user-permissions)
-- [Database Security](#security)
-- [Connect MySQL Workbench](#workbench)
+- [Login to Postgres Server](#login-server)
+- [Connect PG Admin](#pgadmin)
 - [Persistent Data](#persistent)
 
 <a name="overview" />
 
 ## Overview & Purpose
 
-This repo provides a step-by-step guide for getting MySQL Server up and running on your development machine using Docker and Docker Compose.
+This repo provides a step-by-step guide for getting PostgreSQL up and running on your development machine using Docker and Docker Compose.
 
 You may be asking yourself:
 
-> "Why would I want MySQL Server running in a container rather than directly on my machine?"
+> "Why would I want PostgreSQL running in a container rather than directly on my machine?"
 
 1. There is less clustter on your device.
-1. You can spin up multiple MySQL Servers using slightly different verisons to cater to different projects or to experiment before making the leap to a new version.
-1. You can reliably create identical / consistent MySQL Servers independent of your device's OS...as long as the OS supports Docker 🙂
+1. You can spin up multiple PostgreSQL instances using slightly different verisons to cater to different projects or to experiment before making the leap to a new version.
+1. You can reliably create identical / consistent PostgreSQL instances independent of your device's OS...as long as the OS supports Docker 🙂
 1. Your development environment is "documented", automated, and reproducible.
 
 <a name="pre-reqs"></a>
@@ -45,15 +43,12 @@ You may be asking yourself:
 1. Clone this repo
 
    ```
-   git clone https://github.com/chrishuman0923/mysql_server_docker.git
+   git clone https://github.com/chrishuman0923/postgresql_docker.git
    ```
 
 1. Create an .env file at the root of this directory for sensitive values using the following template:
 
    ```
-   # The password for the root user
-   DB_ROOT_PASS=
-
    # The username for a new user
    DB_USER=
 
@@ -61,8 +56,8 @@ You may be asking yourself:
    DB_PASS=
    ```
 
-1. Confirm that the MySQL Server version you want to use is defined in docker-compose.yml
-   - If you are unsure which version of MySQL Server to use, consult the MySQL Docker page [here](https://hub.docker.com/_/mysql) or just use `mysql:latest` to get the latest version available.
+1. Confirm that the PostgreSQL version you want to use is defined in docker-compose.yml
+   - If you are unsure which version of PostgreSQL to use, consult the PostgreSQL Docker page [here](https://hub.docker.com/_/postgres) or just use `postgres:latest` to get the latest version available.
 
 <a name="start"></a>
 
@@ -94,59 +89,13 @@ Once the container is up and running, you should be able to view it using `docke
 
 <a name="login-server"></a>
 
-## Login to MySQL Server
+## Login to PostgreSQL
 
-1. Once logged into the container, you will need to then login to the MySQL Server using `mysql -u {USERNAME} -p`.
+Once logged into the container, you will need to then login to the PostgreSQL instance using `psql -U {USERNAME} password={PASSWORD}`.
 
-1. You will be prompted to enter the password for the user.
+<a name="pgadmin"></a>
 
-<a name='user-permissions'></a>
-
-## Set User Permissions
-
-At this point, the user you defined in the .env file has no permissions other than being able to connect to the server. It cannot inherently perform any CRUD (Create, Read, Update, Delete) operations within the server.
-
-To correct this, we need to give the user permissions.
-
-Login to the MySQL Server as the root user. Once logged in, you can grant any level of permissions you desire to your user that was defined in the .env file.
-
-- If this server is soley for development and will never be in production (i.e. "public facing") then you can run the following:
-
-  ```
-  GRANT ALL ON *.* TO '{USERNAME}'@'%';
-  ```
-
-  Lets break that command down to understand what we are doing.
-
-  - `GRANT` is the keyword used in MySQL to give permissions.
-  - `ALL` are the permissions we are granting to the user.
-    - You can get a complete list of permission options from the MySQL documentation.
-  - `*.*` refers to the database name then a .(dot) followed by the table name.
-    - In this case, we are using wildcards to grant the same permissions to all databases and all tables within each database.
-  - `'{USERNAME}'@'%'` specifies the user and the connection IP address.
-    - The `'%'` wildcard means we are permitting that user to connect to the server from any IP address.
-
-  So, in effect, this statement will grant our user "super-admin" permissions to perform any action on the server when connecting from any IP address.
-
-After running the above command, you should be able to connect to the server and perform CRUD operations with your created user.
-
-<a name="security"></a>
-
-## Database Security
-
-**WARNING:** The permissions described above are **NOT** recommended for production environments!
-
-Each user should be granted minimum permissions to minimum databases.
-
-Ideally, you would implement user roles and, instead of granting permissions directly to a user, you would add users to a user role that contains the minimum permissions they require to complete their tasks and then audit the members of each role often.
-
-Also, you would limit the IP addresses from which a user can use to connect to your server/databases.
-
-This is by no means the only preventative measures you can take but it is at least a step in the right direction. You should always secure your data servers thoroughly and scrutinize access.
-
-<a name="workbench"></a>
-
-## Connect MySQL Workbench
+## Connect PG Admin
 
 Now, you may be thinking:
 
@@ -158,17 +107,17 @@ If you look back at our docker-compose.yml you will notice the `ports` definitio
 
 What line #18 and #19 is doing is mapping a port on our host machine (the device running docker) to a port within our container.
 
-`3306:3306` is read as:
+`5432:5432` is read as:
 
-> Map all traffic from `localhost:3306` to `container:3306`.
+> Map all traffic from `localhost:5432` to `container:5432`.
 
-This means that we can set tools like MySQL Workbench to connect to our database on `localhost:3306` and it will be re-routed into our container and reach our database.
+This means that we can set tools like PG Admin to connect to our database on `localhost:5432` and it will be re-routed into our container and reach our database.
 
-Now, `3306` is the default listening port for MySQL Server and I made the ports match for simplicity.
+Now, `5432` is the default listening port for PostgreSQL and I made the ports match for simplicity.
 
-However, lets say that `3306` on my machine was already occupied by something. I could have changed the host port to anything and still connect to my database.
+However, lets say that `5432` on my machine was already occupied by something. I could have changed the host port to anything and still connect to my database.
 
-E.G. If I had set the port definition in docker-compose.yml to `8080:3306` then I could still connect to my database by accessing `localhost:8080` and it would still be mapped to `container:3306`.
+E.G. If I had set the port definition in docker-compose.yml to `8080:5432` then I could still connect to my database by accessing `localhost:8080` and it would still be mapped to `container:5432`.
 
 <a name="persistent"></a>
 
@@ -182,8 +131,8 @@ In essence, we need to map the directory(ies) in our container that hold our dat
 
 In our docker-compose.yml (line #25), you can see how we mapped our persisent volume. This reads the same as our port mapping.
 
-> Map all the information to the `./db/data` directory on our host machine from the `/var/lib/mysql` directory in the container.
+> Map all the information to the `./db/data` directory on our host machine from the `/var/lib/postgresql/data` directory in the container.
 
-In MySQL Server, the `/var/lib/mysql` directory holds all of the data from the server.
+In PostgreSQL, the `/var/lib/postgresql/data` directory holds all of the data from the instance.
 
 This means that as long as we retain the `./db/data` directory, we can stop, start, and delete our container without fear of losing any information.

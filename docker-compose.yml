@@ -1,28 +1,24 @@
-version: '3.8'
+version: "3.8"
 
 services:
   db:
-    # Resolves the "mbind: Operation not permitted" warning in container logs
-    # https://github.com/docker-library/mysql/issues/303
-    cap_add: [ SYS_NICE ]
     # Defines a name for your container rather than having docker create a random one for you
-    container_name: mysql_local
+    container_name: postgres_local
     # Defines environment values to pass into the container.
     # The ${} values are being provided by the .env file
     environment:
-      MYSQL_PASSWORD: ${DB_PASS}
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASS}
-      MYSQL_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_USER: ${DB_USER}
     # The image from the docker repository to use when creating this container
     # Standard name:version format
-    image: mysql:8.0.22
+    image: postgres:13.3
     # Defines the ports to bind the container to
     # HOST_MACHINE:CONTAINER
     ports:
-      - 3306:3306
+      - 5432:5432
     # Will always attempt to restart the container if it stops for any reason
     restart: always
-    # Mounts the internal /var/lib/mysql directory from within the container to the /db/data directory on the host machine
+    # Mounts the internal /var/lib/postgresql/data directory from within the container to the /db/data directory on the host machine
     # This allows us to start, stop, delete, and re-create the container and retain our information.
     volumes:
-      - ./db/data:/var/lib/mysql
+      - ./db/data:/var/lib/postgresql/data
