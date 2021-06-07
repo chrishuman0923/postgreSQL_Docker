@@ -1,4 +1,4 @@
-# Postgres via Docker
+# PostgreSQL via Docker
 
 ## Table of Contents
 
